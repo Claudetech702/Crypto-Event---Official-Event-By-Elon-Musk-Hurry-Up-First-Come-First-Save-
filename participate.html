@@ -1,0 +1,268 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Secure Your Spot Now</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        :root {
+            --primary: #00adff;
+            --primary-dark: #0088cc;
+            --error: #ff4d4d;
+            --success: #00c853;
+        }
+        
+        body {
+            font-family: 'Arial', sans-serif;
+            background-color: rgba(0,0,0,0.8);
+            color: white;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+        }
+
+        .home-btn {
+            position: fixed;
+            top: 20px;
+            left: 20px;
+            background: var(--primary);
+            color: white;
+            border: none;
+            padding: 10px 15px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-weight: bold;
+            z-index: 100;
+        }
+        
+        .dialog {
+            width: 380px;
+            background: #1a1a1a;
+            border-radius: 12px;
+            border: 1px solid var(--primary);
+            box-shadow: 0 0 20px rgba(0,173,255,0.3);
+            overflow: hidden;
+        }
+        
+        .header {
+            background: linear-gradient(90deg, #00adff 0%, #00ff9d 100%);
+            color: black;
+            padding: 12px;
+            text-align: center;
+            font-weight: bold;
+        }
+        
+        .content {
+            padding: 15px;
+        }
+        
+        .countdown {
+            background: #2a2a2a;
+            border-radius: 8px;
+            padding: 10px;
+            text-align: center;
+            margin-bottom: 15px;
+            font-size: 0.9em;
+        }
+        
+        .time {
+            font-size: 1.5em;
+            font-weight: bold;
+            color: var(--primary);
+            margin: 5px 0;
+        }
+        
+        .crypto-tabs {
+            display: flex;
+            margin-bottom: 15px;
+        }
+        
+        .tab {
+            flex: 1;
+            text-align: center;
+            padding: 8px;
+            cursor: pointer;
+            border-bottom: 2px solid transparent;
+        }
+        
+        .tab.active {
+            border-bottom: 2px solid var(--primary);
+            font-weight: bold;
+        }
+        
+        .address-box {
+            background: #2a2a2a;
+            border-radius: 8px;
+            padding: 12px;
+            margin-bottom: 10px;
+            position: relative;
+        }
+        
+        .address {
+            font-family: monospace;
+            word-break: break-all;
+            font-size: 0.85em;
+        }
+        
+        .copy-btn {
+            width: 100%;
+            background: var(--primary);
+            color: black;
+            border: none;
+            border-radius: 8px;
+            padding: 10px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        
+        .copy-btn:hover {
+            background: var(--primary-dark);
+        }
+        
+        .copy-btn.copied {
+            background: var(--success);
+        }
+        
+        .warning {
+            color: var(--error);
+            font-size: 0.8em;
+            margin-top: 10px;
+            text-align: center;
+        }
+        
+        .qr-code {
+            text-align: center;
+            margin: 15px 0;
+        }
+        
+        .qr-code img {
+            width: 120px;
+            height: 120px;
+            background: white;
+            padding: 10px;
+            border-radius: 8px;
+        }
+    </style>
+</head>
+<body>
+        <button class="home-btn" id="homeBtn">
+           <div class="mt-10">
+                    <a href="index.html" class="participate-btn inline-flex items-center px 8 py-4 border border-transparent rounded-full text-lg font-bold text-black">
+                        <i class="fas fa-home"></i> Home
+                    </a>
+    </button>
+
+    <div class="dialog">
+        <div class="header">
+            <i class="fas fa-coins"></i>PARTICIPATION PROCESSS
+        </div>
+        <div class="content">
+            <div class="countdown">
+                <div>Time Remaining</div>
+                <div class="time" id="countdown">60:00</div>
+            </div>
+            
+            <div class="crypto-tabs">
+                <div class="tab active" data-crypto="eth">ETH(ERC20)</div>
+                <div class="tab" data-crypto="btc">BTC</div>
+                <div class="tab" data-crypto="doge">DOGE</div>
+            </div>
+            
+            <div class="address-box" id="eth-address">
+                <div class="address">0x7c2cab2dff4be61308481d58bdc32ff418c479a8</div>
+                <div class="minimum">Minimum: 1 ETH</div>
+            </div>
+            
+            <div class="address-box" id="btc-address" style="display:none">
+                <div class="address">1BSRcgPp7hCkA9NsFSBKu98scrXueMMxQb</div>
+                <div class="minimum">Minimum: 0.05 BTC</div>
+            </div>
+            
+            <div class="address-box" id="doge-address" style="display:none">
+                <div class="address">D9ZePN8TjybQKbE4D8SC48DAjiSFxWoUbA</div>
+                <div class="minimum">Minimum: 10,000 DOGE</div>
+            </div>
+            
+            <button class="copy-btn" id="copyBtn">
+                <i class="far fa-copy"></i> COPY ADDRESS
+            </button>
+            
+            <div class="warning">
+                <i class="fas fa-exclamation-triangle"></i> Smaller amounts will not be processed!
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // 60-minute countdown timer
+        let minutes = 60;
+        let seconds = 0;
+        
+        function updateCountdown() {
+            const countdownElement = document.getElementById('countdown');
+            
+            seconds--;
+            if (seconds < 0) {
+                seconds = 59;
+                minutes--;
+            }
+            
+            countdownElement.textContent = 
+                minutes.toString().padStart(2, '0') + ':' + 
+                seconds.toString().padStart(2, '0');
+                
+            if (minutes <= 0 && seconds <= 0) {
+                clearInterval(timer);
+                countdownElement.textContent = "EXPIRED";
+                countdownElement.style.color = "red";
+            }
+        }
+        
+        const timer = setInterval(updateCountdown, 1000);
+        
+        // Tab switching functionality
+        const tabs = document.querySelectorAll('.tab');
+        const addressBoxes = document.querySelectorAll('.address-box');
+        const qrCode = document.getElementById('qr-code');
+        
+        tabs.forEach(tab => {
+            tab.addEventListener('click', function() {
+                // Update active tab
+                tabs.forEach(t => t.classList.remove('active'));
+                this.classList.add('active');
+                
+                // Show corresponding address
+                const crypto = this.getAttribute('data-crypto');
+                addressBoxes.forEach(box => box.style.display = 'none');
+                document.getElementById(`${crypto}-address`).style.display = 'block';
+                
+                // Update QR code
+                const address = document.querySelector(`#${crypto}-address .address`).textContent;
+                qrCode.src = `https://api.qrserver.com/v1/create-qr-code/?size=120x120&data=${encodeURIComponent(address)}`;
+            });
+        });
+        
+        // Copy address functionality
+        document.getElementById('copyBtn').addEventListener('click', function() {
+            const activeTab = document.querySelector('.tab.active');
+            const crypto = activeTab.getAttribute('data-crypto');
+            const address = document.querySelector(`#${crypto}-address .address`).textContent;
+            
+            navigator.clipboard.writeText(address.trim());
+            
+            const btn = document.getElementById('copyBtn');
+            btn.innerHTML = '<i class="fas fa-check"></i> COPIED!';
+            btn.classList.add('copied');
+            
+            setTimeout(() => {
+                btn.innerHTML = '<i class="far fa-copy"></i> COPY ADDRESS';
+                btn.classList.remove('copied');
+            }, 2000);
+        });
+    </script>
+</body>
+</html>
